@@ -1,8 +1,5 @@
 package com.gpstracker.server.db;
 
-import com.gpstracker.server.db.dao.UserDao;
-import com.gpstracker.server.db.entities.User;
-import com.gpstracker.server.util.TokenGenerator;
 import org.h2.jdbcx.JdbcConnectionPool;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -42,12 +39,12 @@ public class DBInitUtil {
         dbi.useHandle(handle -> {
             handle.execute("CREATE TABLE IF NOT EXISTS " + DBTable.USERS + " (" +
                     "id INTEGER AUTO_INCREMENT PRIMARY KEY, " +
-                    "login CHAR(20) NOT NULL, " +
+                    "login CHAR(20) NOT NULL UNIQUE, " +
                     "password BINARY(32) NOT NULL, " +
-                    "email CHAR(100) NOT NULL, " +
+                    "email CHAR(100) NOT NULL UNIQUE, " +
                     "name CHAR(50) NOT NULL, " +
                     "timezone INT2 NOT NULL, " +
-                    "token BINARY(16) NOT NULL, " +
+                    "token BINARY(36) NOT NULL, " +
                     "CONSTRAINT UC_" + DBTable.USERS + " UNIQUE (login, password))");
             Loggers.DB_LOGGER.debug("Table '" + DBTable.USERS + "' is created");
 
@@ -70,52 +67,17 @@ public class DBInitUtil {
                     "FOREIGN KEY (track_id) REFERENCES " + DBTable.TRACKS + "(id))");
             Loggers.DB_LOGGER.debug("Table '" + DBTable.TRACK_POINTS + "' is created");
 
-            initDefaultUser();
         });
     }
 
     public static void deleteTables(Handle handle) {
         handle.execute("DROP TABLE " + DBTable.TRACK_POINTS);
         handle.execute("DROP TABLE " + DBTable.TRACKS);
-//        handle.execute("DROP TABLE " + USERS);
-    }
-
-    public static int addNewUser(String login, byte[] password, String email, String name, short timezone) {
-        byte[] token = TokenGenerator.generateToken();
-        UserDao userDao = getDbi().onDemand(UserDao.class);
-        int nextId = userDao.getCount() + 1;
-
-        User user = new User(nextId, login, password, email, name, timezone, token);
-        if (userDao.getByToken(token) == null) {
-            userDao.insert(user);
-            user = userDao.getByToken(token);
-            Loggers.DB_LOGGER.info("Registered new user: id=" + user.getId() + ", login=" + user.getLogin());
-            return user.getId();
-        }
-        return -1;
+//        handle.execute("DROP TABLE " + DBTable.USERS);
     }
 
     public static DBI getDbi() {
         return dbi;
-
-    }
-
-    private static void initDefaultUser() {
-//      TODO delete when sign-up-service will created
-        int id = 1;
-        String login = "default";
-        byte[] password = "qwerty123".getBytes();
-        String email = "123@my.mail";
-        String name = "username";
-        short timezone = 2;
-        byte[] token = "1020304050607089".getBytes();
-
-        User user = new User(id, login, password, email, name, timezone, token);
-        UserDao userDao = getDbi().onDemand(UserDao.class);
-        if (userDao.getByToken(token) == null) {
-            userDao.insert(user);
-            Loggers.DB_LOGGER.debug("Default user initialized");
-        }
 
     }
 
