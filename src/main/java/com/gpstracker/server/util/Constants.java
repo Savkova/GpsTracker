@@ -35,7 +35,10 @@ final public class Constants {
     public static final class RequestHeaders {
         public static final String TOKEN = "Token";
         public static final String TRACK_NAME = "Trackid";
-//        public static final String HEADER_PREFIX = "client.";
+        public static final String LOGIN = "Login";
+        public static final String PASSWORD = "Password";
+        public static final String EMAIL = "Email";
+        public static final String NAME = "Name";
     }
 
     public static final class Loggers {
