@@ -1,8 +1,5 @@
 package com.gpstracker.server.httpserver.services;
 
-import com.gpstracker.server.db.DBInitUtil;
-import com.gpstracker.server.db.dao.TrackPointDao;
-import com.gpstracker.server.db.entities.TrackPoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,26 +9,29 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
+import com.gpstracker.server.db.DBInitUtil;
+import com.gpstracker.server.db.dao.TrackPointDao;
+import com.gpstracker.server.db.entities.TrackPoint;
 import com.gpstracker.server.util.Constants.QueryParameters;
 import com.gpstracker.server.util.Constants.RequestHeaders;
 import com.gpstracker.server.util.Constants.Loggers;
 
-public class ReportService
-{
+public class ReportService {
 
-    public static JSONArray getTrackPointReport(Map<String, List<String>> requestParameters) {
+    public static JSONArray getTrackPointReport(Map<String, String> headers) {
 
-        String tokenValue = requestParameters.get(RequestHeaders.TOKEN).get(0);
-        String trackName = requestParameters.get(RequestHeaders.TRACK_NAME).get(0);
+        String tokenValue = headers.get(RequestHeaders.TOKEN);
+        String trackName = headers.get(RequestHeaders.TRACK_NAME);
         int userId = UserService.getUserId(tokenValue);
         int trackId = TrackService.getTrackId(userId, trackName);
 
         TrackPointDao trackPointDao = DBInitUtil.getDbi().onDemand(TrackPointDao.class);
         List<TrackPoint> trackPoints = trackPointDao.getByTrackId(trackId);
-        Loggers.SERVER_LOGGER.info("size=" + trackPoints.size());
+        Loggers.SERVER_LOGGER.info("Report for track '" + trackName + "' sent to the client");
 
-        if (trackPoints.isEmpty())
-            Loggers.SERVER_LOGGER.info("No records for the track " + trackName);
+        if (trackPoints.isEmpty()) {
+            Loggers.SERVER_LOGGER.info("Report sent: no records for the track " + trackName);
+        }
 
         JSONArray jsonArray = new JSONArray();
         for (TrackPoint trackPoint : trackPoints) {
