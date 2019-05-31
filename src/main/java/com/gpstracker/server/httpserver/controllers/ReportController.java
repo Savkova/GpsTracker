@@ -13,6 +13,13 @@ import com.gpstracker.server.util.Constants.ContextAttributes;
 import com.gpstracker.server.httpserver.services.ReportService;
 
 public class ReportController implements AsyncServerRequestHandler<Message<HttpRequest, String>> {
+
+    private final ReportService reportService;
+
+    public ReportController() {
+        this.reportService = ReportService.instance;
+    }
+
     @Override
     public AsyncRequestConsumer<Message<HttpRequest, String>> prepare(final HttpRequest request, final HttpContext context) {
         return new BasicRequestConsumer<>(new StringAsyncEntityConsumer());
@@ -26,7 +33,7 @@ public class ReportController implements AsyncServerRequestHandler<Message<HttpR
         Map<String, String> headers = (Map<String, String>) context.getAttribute(ContextAttributes.HEADERS);
 
         responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, new BasicAsyncEntityProducer(
-                "" + ReportService.getTrackPointReport(headers),
+                "" + reportService.getTrackPointReport(headers),
                 ContentType.APPLICATION_JSON)));
     }
 

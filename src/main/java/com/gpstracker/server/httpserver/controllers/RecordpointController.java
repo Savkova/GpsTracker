@@ -17,6 +17,13 @@ import java.util.Locale;
 import java.util.Map;
 
 public class RecordpointController implements AsyncServerRequestHandler<Message<HttpRequest, String>> {
+
+    private final RecordpointService recordpointService;
+
+    public RecordpointController() {
+        this.recordpointService = RecordpointService.instance;
+    }
+
     @Override
     public AsyncRequestConsumer<Message<HttpRequest, String>> prepare(HttpRequest request, HttpContext context) {
         return new BasicRequestConsumer<>(new StringAsyncEntityConsumer());
@@ -33,7 +40,7 @@ public class RecordpointController implements AsyncServerRequestHandler<Message<
         HttpResponse response;
         int status;
         try {
-            String message = RecordpointService.makeRecord(params, headers) ? "Created new record" : "Track stoped";
+            String message = recordpointService.makeRecord(params, headers) ? "Created new record" : "Track stoped";
 
             status = HttpStatus.SC_OK;
             response = new BasicHttpResponse(status, EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));

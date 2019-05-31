@@ -15,7 +15,7 @@ public class UserService {
 // TODO: not implemented yet
     }
 
-    public static int getUserId(String tokenValue) {
+    public int getUserId(String tokenValue) {
         UserDao userDao = DBInitUtil.getDbi().onDemand(UserDao.class);
         User user = userDao.getByToken(tokenValue.getBytes());
 

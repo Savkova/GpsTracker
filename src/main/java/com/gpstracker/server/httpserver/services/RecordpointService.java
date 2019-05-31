@@ -4,8 +4,7 @@ import com.gpstracker.server.db.DBInitUtil;
 import com.gpstracker.server.db.dao.TrackDao;
 import com.gpstracker.server.db.dao.TrackPointDao;
 import com.gpstracker.server.db.entities.TrackPoint;
-import com.gpstracker.server.exceptions.InvalidRequestException;
-import com.gpstracker.server.exceptions.InvalidTokenException;
+import com.gpstracker.server.exceptions.*;
 import com.gpstracker.server.util.Constants.QueryParameters;
 import com.gpstracker.server.util.Constants.RequestHeaders;
 import com.gpstracker.server.util.Constants.Loggers;
@@ -16,14 +15,19 @@ import java.util.Map;
 
 public class RecordpointService {
 
+    public static final RecordpointService instance = new RecordpointService();
+
+    private final UserService userService;
+
     private RecordpointService() {
+        userService = UserService.instance;
     }
 
-    public static boolean makeRecord(Map<String, List<String>> params, Map<String, String> headers)
+    public boolean makeRecord(Map<String, List<String>> params, Map<String, String> headers)
             throws InvalidRequestException, InvalidTokenException {
 
         String tokenValue = headers.get(RequestHeaders.TOKEN);
-        int userId = UserService.getUserId(tokenValue);
+        int userId = userService.getUserId(tokenValue);
 
         if (userId < 0)
             throw new InvalidTokenException("Invalid token. ");
@@ -56,7 +60,7 @@ public class RecordpointService {
         return true;
     }
 
-    static void deleteTrack(int trackId) {
+    public void deleteTrack(int trackId) {
         //TODO make transaction with trackrecords
         TrackPointDao trackPointDao = DBInitUtil.getDbi().onDemand(TrackPointDao.class);
         trackPointDao.deleteByTrackId(trackId);
