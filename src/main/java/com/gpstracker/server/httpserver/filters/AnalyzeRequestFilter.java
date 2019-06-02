@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.*;
 
-public class AnalyzeQueryParametersFilter implements AsyncFilterHandler {
+public class AnalyzeRequestFilter implements AsyncFilterHandler {
 
     @Override
     public AsyncDataConsumer handle(
