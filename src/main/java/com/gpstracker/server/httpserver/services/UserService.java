@@ -4,12 +4,15 @@ import com.gpstracker.server.db.DBInitUtil;
 import com.gpstracker.server.db.dao.UserDao;
 import com.gpstracker.server.db.entities.User;
 import com.gpstracker.server.exceptions.AlreadyExistException;
+import com.gpstracker.server.exceptions.FailedLoginException;
 import com.gpstracker.server.exceptions.InvalidRequestException;
 import com.gpstracker.server.util.Constants.RequestHeaders;
 import com.gpstracker.server.util.Constants.Loggers;
+import com.gpstracker.server.util.TokenCash;
 import com.gpstracker.server.util.TokenGenerator;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class UserService {
     public static final UserService instance = new UserService();
@@ -32,17 +35,16 @@ public class UserService {
             throw new InvalidRequestException("Missing required header. ");
         }
 
-        User user = saveUser(login, password, email, name, (short) 2);
-        return new String(user.getToken());
+        return saveUser(login, password, email, name, (short) 2).getLogin();
 
     }
 
     public int getUserId(String tokenValue) {
-        UserDao userDao = DBInitUtil.getDbi().onDemand(UserDao.class);
-        User user = userDao.getByToken(tokenValue.getBytes());
+        Map<UUID, Integer> tokens = TokenCash.getTokens();
 
-        if (user != null)
-            return user.getId();
+        if (tokens.containsKey(UUID.fromString(tokenValue))) {
+            return tokens.get(UUID.fromString(tokenValue));
+        }
 
         Loggers.DB_LOGGER.info("Invalid token");
         return -1;
@@ -51,22 +53,61 @@ public class UserService {
     private static User saveUser(String login, byte[] password, String email, String name, short timezone)
             throws AlreadyExistException {
 
-        byte[] token = TokenGenerator.generateToken().toString().getBytes();
         UserDao userDao = DBInitUtil.getDbi().onDemand(UserDao.class);
-        int nextId = userDao.getCount() + 1;
 
-        //TODO: add check for unique
-
-        User user = new User(nextId, login, password, email, name, timezone, token);
-        if (userDao.getByToken(token) == null) {
-            userDao.insert(user);
-            user = userDao.getByToken(token);
-            Loggers.DB_LOGGER.info("Registered user: login=" + user.getLogin() + ", email=" + user.getEmail());
-            return user;
-        } else {
-            throw new AlreadyExistException("Token already exist. Try again, please. ");
+        if (userDao.getByLogin(login) != null) {
+            throw new AlreadyExistException("The login is taken. Try another. ");
         }
+
+        if (userDao.getByEmail(email) != null) {
+            throw new AlreadyExistException("User with that email already exists. ");
+        }
+
+        User user = new User(0, login, password, email, name, timezone);
+
+        userDao.insert(user);
+
+        user = userDao.getByLogin(login);
+        Loggers.DB_LOGGER.info("Registered user: login=" + user.getLogin() + ", email=" + user.getEmail());
+        return user;
+
     }
 
 
+    public String login(Map<String, String> headers) throws InvalidRequestException, FailedLoginException {
+
+        String login;
+        byte[] password;
+        try {
+            login = headers.get(RequestHeaders.LOGIN);
+            password = headers.get(RequestHeaders.PASSWORD).getBytes();
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
+            throw new InvalidRequestException("Missing required header. ");
+        }
+
+        UserDao userDao = DBInitUtil.getDbi().onDemand(UserDao.class);
+
+        if (userDao.getByLogin(login) == null) {
+            throw new FailedLoginException("User does not exist. ");
+        }
+
+        User user = userDao.getByLoginAndPassword(login, password);
+
+        if (user == null) {
+            throw new FailedLoginException("Login failed. Invalid username or password. ");
+        }
+
+        UUID token = TokenGenerator.generateToken();
+        TokenCash.getTokens().put(token, user.getId());
+
+        Loggers.SERVER_LOGGER.info("User '" + user.getLogin() + "' logged in");
+
+        return token.toString();
+
+    }
+
+    public String logout(Map<String, String> headers) {
+        return null;
+        // TODO not implemented
+    }
 }

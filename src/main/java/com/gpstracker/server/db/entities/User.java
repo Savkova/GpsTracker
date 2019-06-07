@@ -1,7 +1,5 @@
 package com.gpstracker.server.db.entities;
 
-import java.util.Arrays;
-
 public class User {
     private int id;
     private String login;
@@ -9,16 +7,14 @@ public class User {
     private String email;
     private String name;
     private short timezone;
-    private byte[] token; // 36 symbols
 
-    public User(int id, String login, byte[] password, String email, String name, short timeZone, byte[] token) {
+    public User(int id, String login, byte[] password, String email, String name, short timeZone) {
         this.id = id;
         this.login = login;
         this.password = password;
         this.email = email;
         this.name = name;
         this.timezone = timeZone;
-        this.token = token;
     }
 
     public String getLogin() {
@@ -53,14 +49,6 @@ public class User {
         this.timezone = timezone;
     }
 
-    public byte[] getToken() {
-        return token;
-    }
-
-    public void setToken(byte[] token) {
-        this.token = token;
-    }
-
     public String getName() {
         return name;
     }
@@ -85,7 +73,6 @@ public class User {
         sb.append(", email='").append(email).append('\'');
         sb.append(", name='").append(name).append('\'');
         sb.append(", timezone=").append(timezone);
-        sb.append(", token=").append(Arrays.toString(token));
         sb.append('}');
         return sb.toString();
     }

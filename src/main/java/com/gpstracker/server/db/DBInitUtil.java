@@ -35,7 +35,9 @@ public class DBInitUtil {
     }
 
     public static void initDb() {
-//      TODO: sha256 - 64 char or 32 bytes
+
+        deleteTables(dbi.open()); // for debug
+
         dbi.useHandle(handle -> {
             handle.execute("CREATE TABLE IF NOT EXISTS " + DBTable.USERS + " (" +
                     "id INTEGER AUTO_INCREMENT PRIMARY KEY, " +
@@ -43,9 +45,7 @@ public class DBInitUtil {
                     "password BINARY(32) NOT NULL, " +
                     "email CHAR(100) NOT NULL UNIQUE, " +
                     "name CHAR(50) NOT NULL, " +
-                    "timezone INT2 NOT NULL, " +
-                    "token BINARY(36) NOT NULL, " +
-                    "CONSTRAINT UC_" + DBTable.USERS + " UNIQUE (login, password))");
+                    "timezone INT2 NOT NULL)");
             Loggers.DB_LOGGER.debug("Table '" + DBTable.USERS + "' is created");
 
             handle.execute("CREATE TABLE IF NOT EXISTS " + DBTable.TRACKS + " (" +
@@ -73,7 +73,7 @@ public class DBInitUtil {
     public static void deleteTables(Handle handle) {
         handle.execute("DROP TABLE " + DBTable.TRACK_POINTS);
         handle.execute("DROP TABLE " + DBTable.TRACKS);
-//        handle.execute("DROP TABLE " + DBTable.USERS);
+        handle.execute("DROP TABLE " + DBTable.USERS);
     }
 
     public static DBI getDbi() {

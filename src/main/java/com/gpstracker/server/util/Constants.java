@@ -1,6 +1,5 @@
 package com.gpstracker.server.util;
 
-import com.gpstracker.server.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +9,13 @@ final public class Constants {
     }
 
     public static final class Filters {
-        public static final String QUERY_PATH_FILTER = "query_path_filter";
+        public static final String QUERY_REQUEST_FILTER = "query_request_filter";
+    }
+
+    public static final class Actions {
+        public static final String REGISTER_USER = "register";
+        public static final String LOGIN_USER = "login";
+        public static final String LOGOUT_USER = "logout";
     }
 
     public static final class RequestHandlers {
