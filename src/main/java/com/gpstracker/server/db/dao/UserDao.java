@@ -14,10 +14,16 @@ public interface UserDao {
     @SqlQuery("SELECT * FROM " + DBTable.USERS + " WHERE id = :id")
     public User getById(@Bind("id") int id);
 
-    @SqlQuery("SELECT * FROM " + DBTable.USERS + " WHERE token = :token")
-    public User getByToken(@Bind("token") byte[] token);
+    @SqlQuery("SELECT * FROM " + DBTable.USERS + " WHERE login = :login")
+    public User getByLogin(@Bind("login") String login);
 
-    @SqlUpdate("INSERT INTO " + DBTable.USERS + " (login, password, email, name, timezone, token) VALUES (:login, :password, :email, :name, :timezone, :token)")
+    @SqlQuery("SELECT * FROM " + DBTable.USERS + " WHERE email = :email")
+    public User getByEmail(@Bind("email") String email);
+
+    @SqlQuery("SELECT * FROM " + DBTable.USERS + " WHERE login = :login AND password = :password")
+    public User getByLoginAndPassword(@Bind("login") String login, @Bind ("password") byte[] password);
+
+    @SqlUpdate("INSERT INTO " + DBTable.USERS + " (login, password, email, name, timezone) VALUES (:login, :password, :email, :name, :timezone)")
     public void insert(@BindBean User user);
 
     @SqlUpdate("UPDATE " + DBTable.USERS + " SET name = :name WHERE id = :id")
@@ -25,9 +31,6 @@ public interface UserDao {
 
     @SqlUpdate("UPDATE " + DBTable.USERS + " SET email = :email WHERE id = :id")
     public void changeEmail(@Bind("id") int id, @Bind("email") String email);
-
-    @SqlUpdate("UPDATE " + DBTable.USERS + " SET token = :token WHERE id = :id")
-    public void changeToken(@Bind("id") int id, @Bind("token") byte[] token);
 
     @SqlUpdate("UPDATE " + DBTable.USERS + " SET password = :password WHERE id = :id")
     public void changePassword(@Bind("id") int id, @Bind("password") byte[] password);

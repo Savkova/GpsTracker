@@ -15,8 +15,7 @@ public class UserMapper implements ResultSetMapper<User>{
                 rs.getBytes("password"),
                 rs.getString("email"),
                 rs.getString("name"),
-                rs.getShort("timezone"),
-                rs.getBytes("token"));
+                rs.getShort("timezone"));
     }
 
 }
