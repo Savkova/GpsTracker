@@ -98,15 +98,12 @@ public class UserService {
             throw new FailedLoginException("Login failed. Invalid username or password. ");
         }
 
-        Map<Integer, UUID> tokens = TokenCash.getTokens();
-
-        if (!tokens.containsKey(user.getId())){
-            tokens.put(user.getId(), TokenGenerator.generateToken());
-        }
+        UUID token = TokenGenerator.generateToken();
+        TokenCash.getTokens().put(token, user.getId());
 
         Loggers.SERVER_LOGGER.info("User '" + user.getLogin() + "' logged in");
 
-        return TokenCash.getTokens().get(user.getId()).toString();
+        return token.toString();
 
     }
 

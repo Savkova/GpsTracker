@@ -6,9 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TokenCash {
 
-    private static Map<Integer, UUID> TOKEN_CASH = new ConcurrentHashMap<>();
+    private static Map<UUID, Integer> TOKEN_CASH = new ConcurrentHashMap<>();
 
-    public static Map<Integer, UUID> getTokens() {
+    public static Map<UUID, Integer> getTokens() {
         return TOKEN_CASH;
     }
 
