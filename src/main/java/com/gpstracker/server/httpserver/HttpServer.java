@@ -5,7 +5,7 @@ import com.gpstracker.server.db.DBInitUtil;
 import com.gpstracker.server.httpserver.controllers.RecordpointController;
 import com.gpstracker.server.httpserver.controllers.ReportController;
 import com.gpstracker.server.httpserver.controllers.UserController;
-import com.gpstracker.server.httpserver.filters.AnalyzeQueryParametersFilter;
+import com.gpstracker.server.httpserver.filters.AnalyzeRequestFilter;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.protocol.UriPatternType;
@@ -38,7 +38,7 @@ public class HttpServer {
                 .setIOReactorConfig(config)
                 .setCanonicalHostName(MainSettings.configuration.getServer_ip())
 
-                .addFilterFirst(Constants.Filters.QUERY_PATH_FILTER, new AnalyzeQueryParametersFilter())
+                .addFilterFirst(Constants.Filters.QUERY_REQUEST_FILTER, new AnalyzeRequestFilter())
 
                 .register(Constants.RequestHandlers.RECORDPOINT_HANDLER, new RecordpointController())
                 .register(Constants.RequestHandlers.REPORT_HANDLER, new ReportController())
