@@ -40,13 +40,12 @@ public class UserService {
     }
 
     public int getUserId(String tokenValue) {
-       /* UserDao userDao = DBInitUtil.getDbi().onDemand(UserDao.class);
-        User user = userDao.getByToken(tokenValue.getBytes());
+        Map<UUID, Integer> tokens = TokenCash.getTokens();
 
-        if (user != null)
-            return user.getId();
-*/
-        // TODO not implemented
+        if (tokens.containsKey(UUID.fromString(tokenValue))) {
+            return tokens.get(UUID.fromString(tokenValue));
+        }
+
         Loggers.DB_LOGGER.info("Invalid token");
         return -1;
     }
