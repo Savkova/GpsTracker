@@ -15,9 +15,10 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.gpstracker.server.util.Constants.Actions.*;
+
 public class UserController implements AsyncServerRequestHandler<Message<HttpRequest, String>> {
 
-    private static final String REGISTER_USER = "register";
 
     private final UserService userService;
 
@@ -38,24 +39,50 @@ public class UserController implements AsyncServerRequestHandler<Message<HttpReq
         String[] pathParts = (String[]) context.getAttribute(ContextAttributes.PATH_PARTS);
         Map<String, String> headers = (Map<String, String>) context.getAttribute(ContextAttributes.HEADERS);
 
-        String path = pathParts[2];
+        String action = pathParts[2];
 
         HttpResponse response;
         int status;
+        String message;
         try {
-
-            if (path.equals(REGISTER_USER)) {
-                String token = userService.registerUser(headers);
-                status = HttpStatus.SC_OK;
-                response = new BasicHttpResponse(status, EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
-                responseTrigger.submitResponse(new BasicResponseProducer(response, "token: " + token));
+            String login;
+            switch (action) {
+                case REGISTER_USER:
+                    login = userService.registerUser(headers);
+                    status = HttpStatus.SC_OK;
+                    message = "User ' " + login + "' registered. ";
+                    break;
+                case LOGIN_USER:
+                    String token = userService.login(headers);
+                    message = "token: " + token;
+                    status = HttpStatus.SC_OK;
+                    break;
+                case LOGOUT_USER:
+                    login = userService.logout(headers);
+                    message = "User " + login + " logged out. ";
+                    status = HttpStatus.SC_OK;
+                    break;
+                default:
+                    throw new NotFoundException("Resource not found.");
             }
 
-        } catch (InvalidRequestException | AlreadyExistException | IllegalArgumentException e) {
+        } catch (FailedLoginException | AlreadyExistException e) {
+            message = e.getMessage();
+            status = HttpStatus.SC_OK;
+
+        } catch (InvalidRequestException | IllegalArgumentException e) {
+            message = e.getMessage();
             status = HttpStatus.SC_BAD_REQUEST;
-            response = new BasicHttpResponse(status, EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
-            responseTrigger.submitResponse(new BasicResponseProducer(response, e.getMessage()));
+
+        } catch (NotFoundException e) {
+            message = e.getMessage();
+            status = HttpStatus.SC_NOT_FOUND;
         }
 
+        response = new BasicHttpResponse(status, EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
+        responseTrigger.submitResponse(new BasicResponseProducer(response, message));
+
     }
+
+
 }
