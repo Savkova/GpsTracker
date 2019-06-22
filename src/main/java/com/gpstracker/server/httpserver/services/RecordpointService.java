@@ -29,9 +29,6 @@ public class RecordpointService {
         String tokenValue = headers.get(RequestHeaders.TOKEN);
         int userId = userService.getUserId(tokenValue);
 
-        if (userId < 0)
-            throw new InvalidTokenException("Invalid token. ");
-
         String trackName = headers.get(RequestHeaders.TRACK_NAME);
         int trackId = TrackService.getTrackId(userId, trackName);
 
@@ -39,7 +36,7 @@ public class RecordpointService {
                 && params.get(QueryParameters.TRACKER_STATUS).contains("stop")) {
 
             TrackService.stopTrack(trackId);
-            Loggers.DB_LOGGER.info(LocalDateTime.now() + " Track '" + trackName + "' stoped");
+            Loggers.DB_LOGGER.info(LocalDateTime.now() + " Track '" + trackName + "' stoped (userId = " + userId + ")");
 
             return false;
         }
@@ -51,7 +48,8 @@ public class RecordpointService {
 
             TrackPointDao trackPointDao = DBInitUtil.getDbi().onDemand(TrackPointDao.class);
             trackPointDao.insert(new TrackPoint(trackId, latitude, longitude, gpsTime));
-            Loggers.DB_LOGGER.info(java.time.LocalDateTime.now() + " Added new record to '" + trackName + "'");
+            Loggers.DB_LOGGER.info(java.time.LocalDateTime.now()
+                    + " Added new record to '" + trackName + "' (userId = \" + userId + \")");
 
         } catch (NullPointerException | IndexOutOfBoundsException e) {
             throw new InvalidRequestException("Missing required query parameter. ");

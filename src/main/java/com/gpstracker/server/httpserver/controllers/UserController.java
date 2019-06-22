@@ -59,7 +59,7 @@ public class UserController implements AsyncServerRequestHandler<Message<HttpReq
                     break;
                 case LOGOUT_USER:
                     login = userService.logout(headers);
-                    message = "User " + login + " logged out. ";
+                    message = "User '" + login + "' logged out. ";
                     status = HttpStatus.SC_OK;
                     break;
                 default:
