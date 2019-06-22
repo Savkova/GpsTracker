@@ -1,12 +1,15 @@
 package com.gpstracker.server.httpserver.controllers;
 
+import com.gpstracker.server.exceptions.InvalidTokenException;
 import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.*;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 import com.gpstracker.server.util.Constants.ContextAttributes;
@@ -32,9 +35,21 @@ public class ReportController implements AsyncServerRequestHandler<Message<HttpR
 
         Map<String, String> headers = (Map<String, String>) context.getAttribute(ContextAttributes.HEADERS);
 
-        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, new BasicAsyncEntityProducer(
-                "" + reportService.getTrackPointReport(headers),
-                ContentType.APPLICATION_JSON)));
+        int status;
+        String message;
+        HttpResponse response;
+        try {
+            message = "" + reportService.getTrackPointReport(headers);
+            status = HttpStatus.SC_OK;
+        } catch (InvalidTokenException e) {
+            message = e.getMessage();
+            status = HttpStatus.SC_FORBIDDEN;
+        }
+
+        response = new BasicHttpResponse(status, EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
+        responseTrigger.submitResponse(new BasicResponseProducer(response, message));
+
     }
+
 
 }

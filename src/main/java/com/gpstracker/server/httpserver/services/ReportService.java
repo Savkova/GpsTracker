@@ -3,6 +3,7 @@ package com.gpstracker.server.httpserver.services;
 import com.gpstracker.server.db.DBInitUtil;
 import com.gpstracker.server.db.dao.TrackPointDao;
 import com.gpstracker.server.db.entities.TrackPoint;
+import com.gpstracker.server.exceptions.InvalidTokenException;
 import com.gpstracker.server.util.Constants.QueryParameters;
 import com.gpstracker.server.util.Constants.RequestHeaders;
 import com.gpstracker.server.util.Constants.Loggers;

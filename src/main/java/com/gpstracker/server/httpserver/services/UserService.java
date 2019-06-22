@@ -6,6 +6,7 @@ import com.gpstracker.server.db.entities.User;
 import com.gpstracker.server.exceptions.AlreadyExistException;
 import com.gpstracker.server.exceptions.FailedLoginException;
 import com.gpstracker.server.exceptions.InvalidRequestException;
+import com.gpstracker.server.exceptions.InvalidTokenException;
 import com.gpstracker.server.util.Constants.RequestHeaders;
 import com.gpstracker.server.util.Constants.Loggers;
 import com.gpstracker.server.util.TokenCash;
@@ -39,7 +40,7 @@ public class UserService {
 
     }
 
-    public int getUserId(String tokenValue) {
+    public int getUserId(String tokenValue) throws InvalidTokenException {
         Map<UUID, Integer> tokens = TokenCash.getTokens();
 
         if (tokens.containsKey(UUID.fromString(tokenValue))) {
@@ -47,7 +48,9 @@ public class UserService {
         }
 
         Loggers.DB_LOGGER.info("Invalid token");
-        return -1;
+
+        throw new InvalidTokenException();
+
     }
 
     private static User saveUser(String login, byte[] password, String email, String name, short timezone)
