@@ -49,7 +49,7 @@ public class RecordpointService {
             TrackPointDao trackPointDao = DBInitUtil.getDbi().onDemand(TrackPointDao.class);
             trackPointDao.insert(new TrackPoint(trackId, latitude, longitude, gpsTime));
             Loggers.DB_LOGGER.info(java.time.LocalDateTime.now()
-                    + " Added new record to '" + trackName + "' (userId = \" + userId + \")");
+                    + " Added new record to '" + trackName + "' (userId = " + userId + ")");
 
         } catch (NullPointerException | IndexOutOfBoundsException e) {
             throw new InvalidRequestException("Missing required query parameter. ");
