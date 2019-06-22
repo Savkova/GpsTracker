@@ -49,7 +49,7 @@ public class ReportService {
         List<TrackPoint> trackPoints = trackPointDao.getByTrackId(trackId);
 
         if (trackPoints.isEmpty()) {
-            Loggers.SERVER_LOGGER.info("Report sent: no records for the track " + trackName);
+            Loggers.SERVER_LOGGER.info(LocalDateTime.now() + " Report sent: no records for the track " + trackName);
             return null;
         }
 
@@ -69,7 +69,7 @@ public class ReportService {
 
         jsonTrack.put(trackName, jsonArray);
 
-        Loggers.SERVER_LOGGER.info("Report sent to the client (userId = " + userId + ", trackId = '" + trackName + "')");
+        Loggers.SERVER_LOGGER.info(LocalDateTime.now() + " Report sent to the client (userId = " + userId + ", trackId = '" + trackName + "')");
         return jsonTrack;
 
     }
