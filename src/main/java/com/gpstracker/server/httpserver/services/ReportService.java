@@ -56,11 +56,11 @@ public class ReportService {
         JSONObject jsonTrack = new JSONObject();
 
         JSONArray jsonArray = new JSONArray();
-        JSONObject trackpoint = new JSONObject();
         for (TrackPoint trackPoint : trackPoints) {
 
             LocalDateTime dateTime = Instant.ofEpochMilli(trackPoint.getGpsTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
 
+            JSONObject trackpoint = new JSONObject();
             trackpoint.put(QueryParameters.GPS_TIME, dateTime);
             trackpoint.put(QueryParameters.GPS_LATITUDE, trackPoint.getLatitude());
             trackpoint.put(QueryParameters.GPS_LONGITUDE, trackPoint.getLongitude());
