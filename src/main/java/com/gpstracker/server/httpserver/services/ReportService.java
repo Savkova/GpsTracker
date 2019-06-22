@@ -28,7 +28,17 @@ public class ReportService {
         this.userService = UserService.instance;
     }
 
-    public JSONArray getTrackPointReport(Map<String, String> headers) {
+
+    /*
+    Example:
+    {
+        "track1": [
+            {"t": "2020-01-17T08:29:59.770", "lon": 36, "lat": 51},
+            {"t": "2020-01-17T08:29:59.770", "lon": 36, "lat": 51}
+        ]
+    }
+    */
+    public JSONObject getTrackPointReport(Map<String, String> headers) throws InvalidTokenException {
 
         String tokenValue = headers.get(RequestHeaders.TOKEN);
         String trackName = headers.get(RequestHeaders.TRACK_NAME);
@@ -43,21 +53,24 @@ public class ReportService {
             return null;
         }
 
+        JSONObject jsonTrack = new JSONObject();
+
         JSONArray jsonArray = new JSONArray();
+        JSONObject trackpoint = new JSONObject();
         for (TrackPoint trackPoint : trackPoints) {
 
             LocalDateTime dateTime = Instant.ofEpochMilli(trackPoint.getGpsTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put(RequestHeaders.TRACK_NAME, trackName);
-            jsonObject.put(QueryParameters.GPS_TIME, dateTime);
-            jsonObject.put(QueryParameters.GPS_LATITUDE, trackPoint.getLatitude());
-            jsonObject.put(QueryParameters.GPS_LONGITUDE, trackPoint.getLongitude());
-            jsonArray.put(jsonObject);
+            trackpoint.put(QueryParameters.GPS_TIME, dateTime);
+            trackpoint.put(QueryParameters.GPS_LATITUDE, trackPoint.getLatitude());
+            trackpoint.put(QueryParameters.GPS_LONGITUDE, trackPoint.getLongitude());
+            jsonArray.put(trackpoint);
         }
 
-        Loggers.SERVER_LOGGER.info("Report for track '" + trackName + "' sent to the client");
-        return jsonArray;
+        jsonTrack.put(trackName, jsonArray);
+
+        Loggers.SERVER_LOGGER.info("Report sent to the client (userId = " + userId + ", trackId = '" + trackName + "')");
+        return jsonTrack;
 
     }
 }
