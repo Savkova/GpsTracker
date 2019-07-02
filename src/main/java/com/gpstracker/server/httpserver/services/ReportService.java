@@ -3,6 +3,7 @@ package com.gpstracker.server.httpserver.services;
 import com.gpstracker.server.db.DBInitUtil;
 import com.gpstracker.server.db.dao.TrackPointDao;
 import com.gpstracker.server.db.entities.TrackPoint;
+import com.gpstracker.server.exceptions.InvalidRequestException;
 import com.gpstracker.server.exceptions.InvalidTokenException;
 import com.gpstracker.server.util.Constants.QueryParameters;
 import com.gpstracker.server.util.Constants.RequestHeaders;
@@ -38,7 +39,11 @@ public class ReportService {
         ]
     }
     */
-    public JSONObject getTrackPointReport(Map<String, String> headers) throws InvalidTokenException {
+    public JSONObject getTrackPointReport(Map<String, String> headers) throws InvalidTokenException, InvalidRequestException {
+
+        if (!headers.containsKey(RequestHeaders.TOKEN) || !headers.containsKey(RequestHeaders.TRACK_NAME)) {
+            throw new InvalidRequestException("Missing required header. ");
+        }
 
         String tokenValue = headers.get(RequestHeaders.TOKEN);
         String trackName = headers.get(RequestHeaders.TRACK_NAME);

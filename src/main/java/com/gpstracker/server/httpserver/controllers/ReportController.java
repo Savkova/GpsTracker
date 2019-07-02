@@ -1,5 +1,6 @@
 package com.gpstracker.server.httpserver.controllers;
 
+import com.gpstracker.server.exceptions.InvalidRequestException;
 import com.gpstracker.server.exceptions.InvalidTokenException;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
@@ -44,6 +45,9 @@ public class ReportController implements AsyncServerRequestHandler<Message<HttpR
         } catch (InvalidTokenException e) {
             message = e.getMessage();
             status = HttpStatus.SC_FORBIDDEN;
+        } catch (InvalidRequestException e) {
+            message = e.getMessage();
+            status = HttpStatus.SC_BAD_REQUEST;
         }
 
         response = new BasicHttpResponse(status, EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
