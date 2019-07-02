@@ -45,10 +45,9 @@ public class UserController implements AsyncServerRequestHandler<Message<HttpReq
         int status;
         String message;
         try {
-            String login;
             switch (action) {
                 case REGISTER_USER:
-                    login = userService.registerUser(headers);
+                    String login = userService.registerUser(headers);
                     status = HttpStatus.SC_OK;
                     message = "User ' " + login + "' registered. ";
                     break;
@@ -58,15 +57,15 @@ public class UserController implements AsyncServerRequestHandler<Message<HttpReq
                     status = HttpStatus.SC_OK;
                     break;
                 case LOGOUT_USER:
-                    login = userService.logout(headers);
-                    message = "User '" + login + "' logged out. ";
+                    Integer userId = userService.logout(headers);
+                    message = "User logged out (userId = " + userId + ") ";
                     status = HttpStatus.SC_OK;
                     break;
                 default:
                     throw new NotFoundException("Resource not found.");
             }
 
-        } catch (FailedLoginException | AlreadyExistException e) {
+        } catch (FailedLoginException | AlreadyExistException | FailedLogoutException e) {
             message = e.getMessage();
             status = HttpStatus.SC_OK;
 

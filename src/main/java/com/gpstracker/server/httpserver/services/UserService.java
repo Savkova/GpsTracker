@@ -3,10 +3,7 @@ package com.gpstracker.server.httpserver.services;
 import com.gpstracker.server.db.DBInitUtil;
 import com.gpstracker.server.db.dao.UserDao;
 import com.gpstracker.server.db.entities.User;
-import com.gpstracker.server.exceptions.AlreadyExistException;
-import com.gpstracker.server.exceptions.FailedLoginException;
-import com.gpstracker.server.exceptions.InvalidRequestException;
-import com.gpstracker.server.exceptions.InvalidTokenException;
+import com.gpstracker.server.exceptions.*;
 import com.gpstracker.server.util.Constants.RequestHeaders;
 import com.gpstracker.server.util.Constants.Loggers;
 import com.gpstracker.server.util.TokenCash;
@@ -97,7 +94,8 @@ public class UserService {
         User user = userDao.getByLoginAndPassword(login, password);
 
         if (user == null) {
-            throw new FailedLoginException("Login failed. Invalid username or password. ");
+            Loggers.SERVER_LOGGER.info("Log in failed: invalid username or password");
+            throw new FailedLoginException("Log in failed. Invalid username or password. ");
         }
 
         UUID token = TokenGenerator.generateToken();
@@ -109,8 +107,19 @@ public class UserService {
 
     }
 
-    public String logout(Map<String, String> headers) {
-        return null;
-        // TODO not implemented
+    public Integer logout(Map<String, String> headers) throws FailedLogoutException {
+
+        String tokenValue = headers.get(RequestHeaders.TOKEN);
+
+        Integer userId = TokenCash.getTokens().remove(UUID.fromString(tokenValue));
+
+        if (userId == null) {
+            Loggers.SERVER_LOGGER.info("Log out failed: token does not exist");
+            throw new FailedLogoutException("Token does not exist");
+        }
+
+        Loggers.SERVER_LOGGER.info("User logged out (userId = " + userId + ")");
+
+        return userId;
     }
 }
