@@ -20,18 +20,17 @@ public class UserService {
 
     public String registerUser(Map<String, String> headers) throws InvalidRequestException, AlreadyExistException {
 
-        String login;
-        byte[] password;
-        String email;
-        String name;
-        try {
-            login = headers.get(RequestHeaders.LOGIN);
-            password = headers.get(RequestHeaders.PASSWORD).getBytes();
-            email = headers.get(RequestHeaders.EMAIL);
-            name = headers.get(RequestHeaders.NAME);
-        } catch (NullPointerException | IndexOutOfBoundsException e) {
+        if (!headers.containsKey(RequestHeaders.LOGIN)
+                || !headers.containsKey(RequestHeaders.PASSWORD)
+                || !headers.containsKey(RequestHeaders.EMAIL)
+                || !headers.containsKey(RequestHeaders.NAME)) {
             throw new InvalidRequestException("Missing required header. ");
         }
+
+        String login = headers.get(RequestHeaders.LOGIN);
+        byte[] password = headers.get(RequestHeaders.PASSWORD).getBytes();
+        String email = headers.get(RequestHeaders.EMAIL);
+        String name = headers.get(RequestHeaders.NAME);
 
         return saveUser(login, password, email, name, (short) 2).getLogin();
 
