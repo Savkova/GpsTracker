@@ -1,5 +1,11 @@
-GPS Tracker properties (path: ./bin/config.properties)
-======================================================
+GPS Tracker Server configuration
+================================
+
+Server uses for storing data H2 database. You must create the database locally.
+
+The file which stores all the settings for the server: <b>./bin/config.properties</b>.
+It must contain the following required properties (values are for example):
+
 server properties
 -----------------
 server_name=GPS Tracker Server
