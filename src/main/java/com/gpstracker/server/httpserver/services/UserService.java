@@ -75,14 +75,12 @@ public class UserService {
 
     public String login(Map<String, String> headers) throws InvalidRequestException, FailedLoginException {
 
-        String login;
-        byte[] password;
-        try {
-            login = headers.get(RequestHeaders.LOGIN);
-            password = headers.get(RequestHeaders.PASSWORD).getBytes();
-        } catch (NullPointerException | IndexOutOfBoundsException e) {
+        if (!headers.containsKey(RequestHeaders.LOGIN) || !headers.containsKey(RequestHeaders.PASSWORD)) {
             throw new InvalidRequestException("Missing required header. ");
         }
+
+        String login = headers.get(RequestHeaders.LOGIN);
+        byte[] password = headers.get(RequestHeaders.PASSWORD).getBytes();
 
         UserDao userDao = DBInitUtil.getDbi().onDemand(UserDao.class);
 
