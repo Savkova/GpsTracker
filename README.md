@@ -1,4 +1,4 @@
-GPS Tracker Server configuration
+Configuration
 ================================
 
 Server uses for storing data H2 database. You must create the database locally.
