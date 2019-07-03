@@ -1,7 +1,7 @@
 package com.gpstracker.server.httpserver.controllers;
 
-import com.gpstracker.server.exceptions.InvalidRequestException;
-import com.gpstracker.server.exceptions.InvalidTokenException;
+import com.gpstracker.server.exceptions.*;
+import com.gpstracker.server.httpserver.services.TrackService;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
@@ -14,14 +14,15 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.gpstracker.server.util.Constants.ContextAttributes;
-import com.gpstracker.server.httpserver.services.ReportService;
 
-public class ReportController implements AsyncServerRequestHandler<Message<HttpRequest, String>> {
+import static com.gpstracker.server.util.Constants.Actions.*;
 
-    private final ReportService reportService;
+public class TrackController implements AsyncServerRequestHandler<Message<HttpRequest, String>> {
 
-    public ReportController() {
-        this.reportService = ReportService.instance;
+    private final TrackService trackService;
+
+    public TrackController() {
+        this.trackService = TrackService.instance;
     }
 
     @Override
@@ -34,20 +35,44 @@ public class ReportController implements AsyncServerRequestHandler<Message<HttpR
                        final ResponseTrigger responseTrigger,
                        final HttpContext context) throws HttpException, IOException {
 
+        String[] pathParts = (String[]) context.getAttribute(ContextAttributes.PATH_PARTS);
         Map<String, String> headers = (Map<String, String>) context.getAttribute(ContextAttributes.HEADERS);
+
+        String action = "";
+        String trackName = "";
+        if (pathParts.length > 3) {
+            action = pathParts[3];
+            trackName = pathParts[2];
+        }
 
         int status;
         String message;
         HttpResponse response;
         try {
-            message = "" + reportService.getTrackPointReport(headers);
-            status = HttpStatus.SC_OK;
+            switch (action) {
+                case TRACK_REPORT:
+                    message = "" + trackService.getTrackPoints(trackName, headers);
+                    status = HttpStatus.SC_OK;
+                    break;
+                case DELETE_TRACK:
+                    message = "Track deleted (id = " + trackService.deleteTrack(trackName, headers) + "). ";
+                    status = HttpStatus.SC_OK;
+                    break;
+                default:
+                    throw new NotFoundException("Resource not found.");
+            }
+
         } catch (InvalidTokenException e) {
             message = e.getMessage();
             status = HttpStatus.SC_FORBIDDEN;
+
         } catch (InvalidRequestException e) {
             message = e.getMessage();
             status = HttpStatus.SC_BAD_REQUEST;
+
+        } catch (NotFoundException e) {
+            message = e.getMessage();
+            status = HttpStatus.SC_NOT_FOUND;
         }
 
         response = new BasicHttpResponse(status, EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));

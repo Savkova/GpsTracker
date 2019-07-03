@@ -3,7 +3,7 @@ package com.gpstracker.server.httpserver;
 import com.gpstracker.server.util.Constants;
 import com.gpstracker.server.db.DBInitUtil;
 import com.gpstracker.server.httpserver.controllers.RecordpointController;
-import com.gpstracker.server.httpserver.controllers.ReportController;
+import com.gpstracker.server.httpserver.controllers.TrackController;
 import com.gpstracker.server.httpserver.controllers.UserController;
 import com.gpstracker.server.httpserver.filters.AnalyzeRequestFilter;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
@@ -41,7 +41,7 @@ public class HttpServer {
                 .addFilterFirst(Constants.Filters.QUERY_REQUEST_FILTER, new AnalyzeRequestFilter())
 
                 .register(Constants.RequestHandlers.RECORDPOINT_HANDLER, new RecordpointController())
-                .register(Constants.RequestHandlers.REPORT_HANDLER, new ReportController())
+                .register(Constants.RequestHandlers.TRACKS_HANDLER, new TrackController())
                 .register(Constants.RequestHandlers.USER_HANDLER, new UserController())
 
                 .create();
