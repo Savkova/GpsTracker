@@ -16,11 +16,13 @@ final public class Constants {
         public static final String REGISTER_USER = "register";
         public static final String LOGIN_USER = "login";
         public static final String LOGOUT_USER = "logout";
+        public static final String TRACK_REPORT = "report";
+        public static final String DELETE_TRACK = "delete";
     }
 
     public static final class RequestHandlers {
         public static final String RECORDPOINT_HANDLER = "/recordpoint";
-        public static final String REPORT_HANDLER = "/report";
+        public static final String TRACKS_HANDLER = "/tracks/.*";
         public static final String USER_HANDLER = "/user/.*";
     }
 
