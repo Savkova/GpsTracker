@@ -42,13 +42,36 @@ public class TrackService {
         trackDao.updateEndtimeOfTrack(trackId, System.currentTimeMillis());
     }
 
-    public static int getTrackId(int userId, String trackName) {
+    public int deleteTrack(String trackName, Map<String, String> headers)
+            throws InvalidRequestException, InvalidTokenException, NotFoundException {
+
+        if (!headers.containsKey(Constants.RequestHeaders.TOKEN)) {
+            throw new InvalidRequestException("Missing required header. ");
+        }
+
+        String tokenValue = headers.get(Constants.RequestHeaders.TOKEN);
+        int userId = userService.getUserId(tokenValue);
+        int trackId = getTrackId(userId, trackName);
+
+        TrackPointDao trackPointDao = DBInitUtil.getDbi().onDemand(TrackPointDao.class);
+        trackPointDao.deleteByTrackId(trackId);
+
+        TrackDao trackDao = DBInitUtil.getDbi().onDemand(TrackDao.class);
+        trackDao.delete(trackId);
+
+        Loggers.DB_LOGGER.info("Track deleted (id = " + trackId + "). ");
+
+        return trackId;
+    }
+
+    public static int getTrackId(int userId, String trackName) throws NotFoundException {
         TrackDao trackDao = DBInitUtil.getDbi().onDemand(TrackDao.class);
         Track track = trackDao.getByUseridAndTrackname(userId, trackName);
 
         if (track == null) {
-            track = createTrack(userId, trackName);
+            throw new NotFoundException("Track does't exist. ");
         }
+
         return track.getId();
     }
 

@@ -35,7 +35,12 @@ public class RecordpointService {
         int userId = userService.getUserId(tokenValue);
 
         String trackName = headers.get(RequestHeaders.TRACK_NAME);
-        int trackId = TrackService.getTrackId(userId, trackName);
+        int trackId = -1;
+        try {
+            trackId = TrackService.getTrackId(userId, trackName);
+        } catch (NotFoundException e) {
+            TrackService.createTrack(userId, trackName);
+        }
 
         if (params.containsKey(QueryParameters.TRACKER_STATUS) && params.get(QueryParameters.TRACKER_STATUS).contains("stop")) {
             TrackService.stopTrack(trackId);
@@ -60,15 +65,6 @@ public class RecordpointService {
         return true;
     }
 
-    public void deleteTrack(int trackId) {
-        //TODO make transaction with trackrecords
-        TrackPointDao trackPointDao = DBInitUtil.getDbi().onDemand(TrackPointDao.class);
-        trackPointDao.deleteByTrackId(trackId);
 
-        TrackDao trackDao = DBInitUtil.getDbi().onDemand(TrackDao.class);
-        trackDao.delete(trackId);
-
-        Loggers.DB_LOGGER.info("Track id=" + trackId + " deleted.");
-    }
 }
 
